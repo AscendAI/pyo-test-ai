@@ -409,9 +409,9 @@ export default function LookLens() {
   };
 
   const searchC3 = async (it) => {
-    const proxy = proxyUrl.trim();
-    if (!proxy) throw new Error("Proxy URL not set");
-    const endpoint = getC3ProxyUrl(proxy);
+    // Empty proxyUrl is valid — getC3ProxyUrl resolves it to this app's
+    // co-deployed /api/channel3 serverless function (same origin).
+    const endpoint = getC3ProxyUrl(proxyUrl);
     let data;
     if (it.thumb) {
       // Cropped garment → image search. Base64 WITHOUT the data URI prefix.
