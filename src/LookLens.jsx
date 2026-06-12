@@ -122,7 +122,8 @@ function textOf(data) {
 }
 
 function extractJSON(text) {
-  const cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+  const cleaned = (text || "").replace(/```json/gi, "").replace(/```/g, "").trim();
+  if (!cleaned) throw new Error("Empty response (likely truncated — try RETRY)");
   const s = cleaned.indexOf("{");
   const e = cleaned.lastIndexOf("}");
   if (s === -1 || e === -1 || e <= s) throw new Error("No JSON in response");
@@ -396,8 +397,10 @@ export default function LookLens() {
 
   const searchWeb = async (it) => {
     const data = await callOpenAI({
+      // web_search reasoning + results share this budget, so keep it generous —
+      // too low and the model runs out of room before emitting the final JSON.
       model: MODEL,
-      max_output_tokens: 1000,
+      max_output_tokens: 3000,
       input: [{ role: "user", content: buildSearchPrompt(it) }],
       tools: [{ type: "web_search" }],
     });
