@@ -9,7 +9,7 @@
 // on OpenAI's side, so nothing extra is needed here for it to work.
 //
 // We use the Responses API (/v1/responses) because it supports both image input
-// and the built-in web_search tool with gpt-4o in a single endpoint.
+// and the built-in web_search tool with gpt-5.5 in a single endpoint.
 //
 // Set OPENAI_API_KEY in your Vercel project (Settings -> Environment Variables)
 // and in a local .env file. Runs on Vercel's Node.js runtime, which parses JSON

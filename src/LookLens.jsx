@@ -5,7 +5,7 @@ import { useState, useRef } from "react";
 // Pipeline: upload photo → VLM detects garments (+ approx
 // bounding boxes) → client-side crop per item → SOURCING via
 // pluggable backends:
-//   [web] GPT-4o + live web search
+//   [web] GPT-5.5 + live web search
 //   [c3]  Channel3 catalog image-search (api.trychannel3.com)
 //   [ab]  A/B — run both, compare side by side
 // ============================================================
@@ -14,7 +14,7 @@ import { useState, useRef } from "react";
 // the OPENAI_API_KEY server-side. Never call api.openai.com directly
 // from the browser — it has no key and would expose it if it did.
 const API_URL = "/api/openai";
-const MODEL = "gpt-4o";
+const MODEL = "gpt-5.5";
 // Proxy endpoint — single URL for both image and text search.
 // Default is empty, which resolves to this app's own co-deployed serverless
 // function at /api/channel3 (works on Vercel prod and with `vercel dev`).

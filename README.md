@@ -11,12 +11,12 @@ keys server-side.
 ## What changed from the original single-file component
 
 The component originally ran against `api.anthropic.com`. It now uses **OpenAI
-GPT-4o** instead. The browser must never hold an API key, so two pieces make this
+GPT-5.5** instead. The browser must never hold an API key, so two pieces make this
 work:
 
 1. **OpenAI calls go through `/api/openai`** (a serverless function holding
    `OPENAI_API_KEY`) instead of hitting `api.openai.com` directly.
-2. **Model is `gpt-4o`**, called via OpenAI's **Responses API**
+2. **Model is `gpt-5.5`**, called via OpenAI's **Responses API**
    (`/v1/responses`), which supports both image input (garment detection) and the
    built-in `web_search` tool (sourcing) from one endpoint.
 
