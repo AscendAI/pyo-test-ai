@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+/* Tailwind v4 ships a CSS reset (Preflight) and all utilities from this one
+   import. Component-specific fonts and animations live in the <style> block
+   inside LookLens.jsx, so nothing else is needed here. */
+
+html,
+body,
+#root {
+  min-height: 100%;
+}

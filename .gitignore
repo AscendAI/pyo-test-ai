@@ -1,0 +1,11 @@
+node_modules
+dist
+.vercel
+
+# Local env — never commit your keys
+.env
+.env*.local
+
+# Logs / editor noise
+*.log
+.DS_Store
