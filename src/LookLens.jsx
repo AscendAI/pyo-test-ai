@@ -15,14 +15,20 @@ import { useState, useRef } from "react";
 // from the browser — it has no key and would expose it if it did.
 const API_URL = "/api/openai";
 const MODEL = "gpt-4o";
-// Proxy endpoint — single URL for both image and text search
-// Dev: http://localhost:3001 (Express)
-// Prod: https://your-project.vercel.app (serverless function at /api/channel3)
-const DEFAULT_PROXY_URL = "http://localhost:3001";
+// Proxy endpoint — single URL for both image and text search.
+// Default is empty, which resolves to this app's own co-deployed serverless
+// function at /api/channel3 (works on Vercel prod and with `vercel dev`).
+// Enter a full origin (e.g. https://your-project.vercel.app) to point at a
+// different deployment, or a full endpoint URL for a custom proxy.
+const DEFAULT_PROXY_URL = "";
 const getC3ProxyUrl = (proxy) => {
-  // Express (localhost) vs Vercel serverless detection
-  const isVercel = proxy.includes("vercel.app") || proxy.includes("vercel.dev");
-  return isVercel ? `${proxy}/api/channel3` : proxy;
+  const p = (proxy || "").trim().replace(/\/+$/, "");
+  // Empty → use the serverless function co-deployed with this app (same origin).
+  if (!p) return "/api/channel3";
+  // A bare origin with no path → append the serverless route.
+  if (/^https?:\/\/[^/]+$/.test(p)) return `${p}/api/channel3`;
+  // Otherwise assume a full endpoint URL and use it as-is.
+  return p;
 };
 
 const C = {
@@ -434,10 +440,6 @@ export default function LookLens() {
 
   const analyze = async () => {
     if (!imgDataUrl || working) return;
-    if (needsC3 && !proxyUrl.trim()) {
-      setError("Channel3 backend selected but no proxy URL — check the config strip.");
-      return;
-    }
     setError(null);
     setItems([]);
     setPhase("detecting");
@@ -604,7 +606,7 @@ export default function LookLens() {
               <input
                 value={proxyUrl}
                 onChange={(e) => setProxyUrl(e.target.value)}
-                placeholder="http://localhost:3001 (dev) or deployed proxy URL"
+                placeholder="empty = this app's /api/channel3 · or a deployed origin"
                 spellCheck={false}
                 autoComplete="off"
                 className="ll-mono text-xs px-2 py-1.5 flex-1"
