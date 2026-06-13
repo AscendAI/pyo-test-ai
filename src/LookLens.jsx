@@ -14,7 +14,7 @@ import { useState, useRef } from "react";
 // the OPENAI_API_KEY server-side. Never call api.openai.com directly
 // from the browser — it has no key and would expose it if it did.
 const API_URL = "/api/openai";
-const MODEL = "gpt-4.1-2025-04-14";
+const MODEL = "gpt-4o";
 // Proxy endpoint — single URL for both image and text search.
 // Default is empty, which resolves to this app's own co-deployed serverless
 // function at /api/channel3 (works on Vercel prod and with `vercel dev`).
