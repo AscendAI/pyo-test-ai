@@ -354,6 +354,7 @@ export default function LookLens() {
   const [dragOver, setDragOver] = useState(false);
   const [backend, setBackend] = useState("web"); // web | c3 | ab
   const [proxyUrl, setProxyUrl] = useState(DEFAULT_PROXY_URL);
+  const [c3SearchMode, setC3SearchMode] = useState("text"); // text | image
   const fileRef = useRef(null);
 
   const working = phase === "detecting" || phase === "searching";
@@ -416,12 +417,12 @@ export default function LookLens() {
     // co-deployed /api/channel3 serverless function (same origin).
     const endpoint = getC3ProxyUrl(proxyUrl);
     let data;
-    if (it.thumb) {
-      // Cropped garment → image search. Base64 WITHOUT the data URI prefix.
+    if (c3SearchMode === "image" && it.thumb) {
+      // Image search with cropped garment. Base64 WITHOUT the data URI prefix.
       const base64 = it.thumb.split(",")[1];
       data = await proxyFetch(endpoint, { action: "image-search", base64_image: base64, limit: 3 });
     } else {
-      // No crop available → text search on the generated query.
+      // Text search on the generated query.
       data = await proxyFetch(endpoint, { action: "text-search", query: it.search_query, limit: 3 });
     }
     return mapC3Products(data.products, it.brand);
@@ -599,31 +600,60 @@ export default function LookLens() {
             ))}
           </div>
           {needsC3 && (
-            <div
-              className="px-4 py-3 border-t flex flex-wrap items-center gap-3"
-              style={{ borderColor: C.line }}
-            >
-              <span className="ll-mono text-xs shrink-0" style={{ color: C.muted }}>
-                PROXY URL
-              </span>
-              <input
-                value={proxyUrl}
-                onChange={(e) => setProxyUrl(e.target.value)}
-                placeholder="empty = this app's /api/channel3 · or a deployed origin"
-                spellCheck={false}
-                autoComplete="off"
-                className="ll-mono text-xs px-2 py-1.5 flex-1"
-                style={{
-                  border: `1px solid ${C.line}`,
-                  background: C.bg,
-                  minWidth: 220,
-                  outline: "none",
-                }}
-              />
-              <span className="ll-mono shrink-0" style={{ fontSize: 10, color: C.muted }}>
-                BACKEND HANDLES API KEY
-              </span>
-            </div>
+            <>
+              <div
+                className="px-4 py-3 border-t flex flex-wrap items-center gap-3"
+                style={{ borderColor: C.line }}
+              >
+                <span className="ll-mono text-xs shrink-0" style={{ color: C.muted }}>
+                  CHANNEL3 MATCH MODE
+                </span>
+                {[
+                  ["text", "TEXT"],
+                  ["image", "IMAGE"],
+                ].map(([v, l]) => (
+                  <button
+                    key={v}
+                    disabled={working}
+                    onClick={() => setC3SearchMode(v)}
+                    className="ll-mono px-2.5 py-1.5 disabled:opacity-40"
+                    style={{
+                      fontSize: 10,
+                      border: `1px solid ${c3SearchMode === v ? C.ink : C.line}`,
+                      background: c3SearchMode === v ? C.ink : "transparent",
+                      color: c3SearchMode === v ? C.bg : C.ink,
+                    }}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+              <div
+                className="px-4 py-3 border-t flex flex-wrap items-center gap-3"
+                style={{ borderColor: C.line }}
+              >
+                <span className="ll-mono text-xs shrink-0" style={{ color: C.muted }}>
+                  PROXY URL
+                </span>
+                <input
+                  value={proxyUrl}
+                  onChange={(e) => setProxyUrl(e.target.value)}
+                  placeholder="empty = this app's /api/channel3 · or a deployed origin"
+                  spellCheck={false}
+                  autoComplete="off"
+                  className="ll-mono text-xs px-2 py-1.5 flex-1"
+                  style={{
+                    border: `1px solid ${C.line}`,
+                    background: C.bg,
+                    minWidth: 220,
+                    outline: "none",
+                  }}
+                />
+                <span className="ll-mono shrink-0" style={{ fontSize: 10, color: C.muted }}>
+                  BACKEND HANDLES API KEY
+                </span>
+              </div>
+            </>
           )}
         </div>
 
