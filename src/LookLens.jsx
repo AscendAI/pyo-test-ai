@@ -14,7 +14,7 @@ import { useState, useRef } from "react";
 // the OPENAI_API_KEY server-side. Never call api.openai.com directly
 // from the browser — it has no key and would expose it if it did.
 const API_URL = "/api/openai";
-const MODEL = "gpt-5-mini";
+const MODEL = "gpt-5.4-mini";
 // Proxy endpoint — single URL for both image and text search.
 // Default is empty, which resolves to this app's own co-deployed serverless
 // function at /api/channel3 (works on Vercel prod and with `vercel dev`).
@@ -416,16 +416,33 @@ export default function LookLens() {
     // Empty proxyUrl is valid — getC3ProxyUrl resolves it to this app's
     // co-deployed /api/channel3 serverless function (same origin).
     const endpoint = getC3ProxyUrl(proxyUrl);
-    let data;
+    let products = [];
+
     if (c3SearchMode === "image" && it.thumb) {
       // Image search with cropped garment. Base64 WITHOUT the data URI prefix.
       const base64 = it.thumb.split(",")[1];
-      data = await proxyFetch(endpoint, { action: "image-search", base64_image: base64, limit: 3 });
-    } else {
+      const data = await proxyFetch(endpoint, { action: "image-search", base64_image: base64, limit: 3 });
+      products = data.products || [];
+    } else if (c3SearchMode === "text") {
       // Text search on the generated query.
-      data = await proxyFetch(endpoint, { action: "text-search", query: it.search_query, limit: 3 });
+      const data = await proxyFetch(endpoint, { action: "text-search", query: it.search_query, limit: 3 });
+      products = data.products || [];
+    } else if (c3SearchMode === "both") {
+      // Both searches: text first, then image
+      const textData = await proxyFetch(endpoint, { action: "text-search", query: it.search_query, limit: 3 });
+      products = textData.products || [];
+      if (it.thumb) {
+        const base64 = it.thumb.split(",")[1];
+        const imageData = await proxyFetch(endpoint, { action: "image-search", base64_image: base64, limit: 3 });
+        const imageProducts = imageData.products || [];
+        // Combine, removing duplicates based on product ID/title
+        const existingIds = new Set(products.map(p => p.id || p.title));
+        products = [...products, ...imageProducts.filter(p => !existingIds.has(p.id || p.title))];
+        // Limit to 6 total results
+        products = products.slice(0, 6);
+      }
     }
-    return mapC3Products(data.products, it.brand);
+    return mapC3Products(products, it.brand);
   };
 
   const runBackend = async (it, b) => {
@@ -452,7 +469,7 @@ export default function LookLens() {
     try {
       const data = await callOpenAI({
         model: MODEL,
-        max_output_tokens: 1000,
+        max_output_tokens: 5000,
         input: [
           {
             role: "user",
@@ -611,6 +628,7 @@ export default function LookLens() {
                 {[
                   ["text", "TEXT"],
                   ["image", "IMAGE"],
+                  ["both", "BOTH"],
                 ].map(([v, l]) => (
                   <button
                     key={v}
