@@ -232,9 +232,9 @@ async function proxyFetch(url, body) {
 
 // Map Channel3 Product objects → LookLens match shape.
 // EXACT label is a heuristic: detected brand matches product brand.
-function mapC3Products(products, detectedBrand) {
+function mapC3Products(products, detectedBrand, limit = 3) {
   return (products || [])
-    .slice(0, 3)
+    .slice(0, limit)
     .map((p) => {
       const offers = [...(p.offers || [])].sort((a, b) => {
         const ai = a.availability === "InStock" ? 0 : 1;
@@ -417,6 +417,7 @@ export default function LookLens() {
     // co-deployed /api/channel3 serverless function (same origin).
     const endpoint = getC3ProxyUrl(proxyUrl);
     let products = [];
+    let resultLimit = 3;
 
     if (c3SearchMode === "image" && it.thumb) {
       // Image search with cropped garment. Base64 WITHOUT the data URI prefix.
@@ -428,21 +429,18 @@ export default function LookLens() {
       const data = await proxyFetch(endpoint, { action: "text-search", query: it.search_query, limit: 3 });
       products = data.products || [];
     } else if (c3SearchMode === "both") {
-      // Both searches: text first, then image
+      // Both searches: 3 text + 3 image = 6 results total
       const textData = await proxyFetch(endpoint, { action: "text-search", query: it.search_query, limit: 3 });
       products = textData.products || [];
       if (it.thumb) {
         const base64 = it.thumb.split(",")[1];
         const imageData = await proxyFetch(endpoint, { action: "image-search", base64_image: base64, limit: 3 });
         const imageProducts = imageData.products || [];
-        // Combine, removing duplicates based on product ID/title
-        const existingIds = new Set(products.map(p => p.id || p.title));
-        products = [...products, ...imageProducts.filter(p => !existingIds.has(p.id || p.title))];
-        // Limit to 6 total results
-        products = products.slice(0, 6);
+        products = [...products, ...imageProducts];
       }
+      resultLimit = 6;
     }
-    return mapC3Products(products, it.brand);
+    return mapC3Products(products, it.brand, resultLimit);
   };
 
   const runBackend = async (it, b) => {
