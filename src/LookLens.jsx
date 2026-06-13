@@ -564,7 +564,7 @@ export default function LookLens() {
         <header className="grid grid-cols-1 sm:grid-cols-3 border" style={{ borderColor: C.ink }}>
           <div className="sm:col-span-2 p-4 md:p-5">
             <h1 className="font-bold leading-none tracking-tight text-4xl md:text-5xl">
-              LOOK<span style={{ color: C.accent }}>LENS</span>
+              PYO <span style={{ color: C.accent }}>SHAZAM</span>
             </h1>
             <p className="ll-mono text-xs mt-2" style={{ color: C.muted }}>
               SHOP-THE-LOOK · VISUAL SEARCH
@@ -1062,10 +1062,15 @@ export default function LookLens() {
         {/* ---- footer ---- */}
         <footer className="mt-10 border-t pt-3 pb-6" style={{ borderColor: C.line }}>
           <p className="ll-mono text-xs leading-relaxed" style={{ color: C.muted }}>
-            PROTOTYPE NOTES — DETECTION VIA VISION-LANGUAGE MODEL; BOUNDING BOXES ARE APPROXIMATE.
-            CHANNEL3 MODE REQUIRES A BACKEND PROXY (node channel3-proxy.js) WITH CHANNEL3_API_KEY ENV VAR.
-            SOURCING: LIVE WEB SEARCH AND/OR CHANNEL3 CATALOG (US-FIRST COVERAGE). "EXACT" BADGE =
-            DETECTED-BRAND MATCH HEURISTIC. VERIFY LINKS BEFORE PURCHASE.
+            Test built by Ascend AI{" "}
+            <a
+              href="https://ascendai.site"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: C.accent, textDecoration: "underline" }}
+            >
+              ascendai.site
+            </a>
           </p>
         </footer>
       </div>
