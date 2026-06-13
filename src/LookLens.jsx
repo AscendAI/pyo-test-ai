@@ -14,7 +14,7 @@ import { useState, useRef } from "react";
 // the OPENAI_API_KEY server-side. Never call api.openai.com directly
 // from the browser — it has no key and would expose it if it did.
 const API_URL = "/api/openai";
-const MODEL = "gpt-5.5";
+const MODEL = "gpt-5-mini";
 // Proxy endpoint — single URL for both image and text search.
 // Default is empty, which resolves to this app's own co-deployed serverless
 // function at /api/channel3 (works on Vercel prod and with `vercel dev`).
@@ -354,7 +354,7 @@ export default function LookLens() {
   const [dragOver, setDragOver] = useState(false);
   const [backend, setBackend] = useState("web"); // web | c3 | ab
   const [proxyUrl, setProxyUrl] = useState(DEFAULT_PROXY_URL);
-  const [c3SearchMode, setC3SearchMode] = useState("text"); // text | image
+  const [c3SearchMode, setC3SearchMode] = useState("text"); // text | image | both
   const fileRef = useRef(null);
 
   const working = phase === "detecting" || phase === "searching";
